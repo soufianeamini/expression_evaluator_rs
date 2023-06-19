@@ -2,7 +2,6 @@ use std::io;
 
 #[derive(Debug)]
 enum Token {
-    WORD(String),
     INTEGER(i32),
     OPERATOR(char),
     LPAREN,
