@@ -3,18 +3,23 @@ use std::io;
 mod lexer;
 
 mod parser {
+    use std::collections::VecDeque;
+
     use crate::lexer::Token;
     pub struct Parser {
-        tokens: Vec<Token>,
-        current: Option<Token>,
+        tokens: VecDeque<Token>,
     }
 
     impl Parser {
         pub fn new(tokens: Vec<Token>) -> Parser {
-            Parser { tokens: tokens, current: None }
+            Parser {
+                tokens: tokens.into(),
+            }
         }
 
-        pub fn parse(&self) {}
+        pub fn parse(&self) {
+            
+        }
     }
 
     trait Expression {
