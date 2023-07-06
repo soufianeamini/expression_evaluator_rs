@@ -38,6 +38,7 @@ impl Parser {
             }
             return;
         }
+        self.error = true;
         eprintln!("Error: expected token: {:?}, found: nothing.", tok_type);
     }
 
@@ -56,7 +57,15 @@ impl Parser {
             return expr;
         } else {
             self.error = true;
-            eprintln!("Error: Unexpected token: {:?}", self.tokens.front().unwrap());
+            let nope;
+            let token = match self.tokens.front() {
+                Some(val) => val,
+                None => {
+                    nope = Token::ERROR(String::from("newline"));
+                    &nope
+                }
+            };
+            eprintln!("Error: Unexpected token: {:?}", token);
             return Box::new(expression::Literal {value: 0.});
         }
     }

@@ -23,7 +23,7 @@ impl Expression for Binary {
             '-' => self.left.evaluate() - self.right.evaluate(),
             '*' => self.left.evaluate() * self.right.evaluate(),
             '/' => self.left.evaluate() / self.right.evaluate(),
-            _ => 0.,
+            _ => unreachable!(),
         }
     }
 }
