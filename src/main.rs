@@ -2,7 +2,6 @@ use std::io;
 
 mod lexer;
 
-
 fn main() {
     loop {
         let mut line = String::new();
