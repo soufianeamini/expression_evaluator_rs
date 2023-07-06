@@ -56,7 +56,23 @@ mod parser {
         }
 
         fn factor(&mut self) -> Box<dyn Expression> {
-            let expr = self.primary();
+            let mut expr = self.primary();
+
+            while self.matchp(Token::STAR) || self.matchp(Token::SLASH) {
+                let right = self.primary();
+                let operator = self.previous.as_ref().unwrap();
+                expr = Box::new(
+                    expression::Binary {
+                        left: expr,
+                        operator: match operator {
+                            Token::STAR => '*',
+                            Token::SLASH => '/',
+                            _ => unreachable!(),
+                        },
+                        right,
+                    }
+                );
+            }
 
             expr
         }
@@ -82,15 +98,16 @@ mod parser {
 
     mod expression {
         use super::Expression;
+        use crate::parser::Token;
 
         pub struct Literal {
             pub value: f64,
         }
         
         pub struct Binary {
-            operator: char,
-            left: Box<dyn Expression>,
-            right: Box<dyn Expression>,
+            pub operator: char,
+            pub left: Box<dyn Expression>,
+            pub right: Box<dyn Expression>,
         }
 
         impl Expression for Literal {
