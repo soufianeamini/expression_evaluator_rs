@@ -8,32 +8,86 @@ mod parser {
     use crate::lexer::Token;
     pub struct Parser {
         tokens: VecDeque<Token>,
+        previous: Option<Token>,
+        error: bool,
     }
 
     impl Parser {
         pub fn new(tokens: Vec<Token>) -> Parser {
             Parser {
                 tokens: tokens.into(),
+                error: false,
+                previous: None,
             }
         }
 
-        pub fn parse(&self) {
-            
+        fn matchp(&mut self, tok_type: Token) -> bool {
+            if let Some(token) = self.tokens.front() {
+                if std::mem::discriminant(token) == std::mem::discriminant(&tok_type) {
+                    self.previous = self.tokens.pop_front();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        fn consume(&mut self, tok_type: Token) {
+            if let Some(token) = self.tokens.front() {
+                if std::mem::discriminant(token) == std::mem::discriminant(&tok_type) {
+                    self.tokens.pop_front();
+                } else {
+                    self.error = true;
+                    eprintln!("Error: expected token: {:?}, found: {:?}.", tok_type, token);
+                }
+            }
+            eprintln!("Error: expected token: {:?}, found: nothing.", tok_type);
+        }
+
+        fn primary(&mut self) -> Box<dyn Expression> {
+            if self.matchp(Token::INTEGER(0)) {
+                return Box::new(
+                    match self.previous.as_ref().unwrap() {
+                        Token::INTEGER(value) => expression::Literal {value: f64::from(*value)},
+                        _ => unreachable!(),
+                    }
+                )
+            }
+            unimplemented!()
+        }
+
+        fn factor(&mut self) -> Box<dyn Expression> {
+            let expr = self.primary();
+
+            expr
+        }
+
+        fn term(&mut self) -> Box<dyn Expression> {
+            let expr = self.factor();
+
+            expr
+        }
+
+        fn expression(&mut self) -> Box<dyn Expression> {
+            self.term()
+        }
+
+        pub fn parse(&mut self) -> Box<dyn Expression> {
+            self.expression()
         }
     }
 
-    trait Expression {
+    pub trait Expression {
         fn evaluate(&self) -> f64;
     }
 
     mod expression {
         use super::Expression;
 
-        struct Literal {
-            value: f64,
+        pub struct Literal {
+            pub value: f64,
         }
         
-        struct Binary {
+        pub struct Binary {
             operator: char,
             left: Box<dyn Expression>,
             right: Box<dyn Expression>,
@@ -74,7 +128,7 @@ fn main() {
             break;
         }
         let tokens = lexer::lex(&line);
-        let parser = parser::Parser::new(tokens);
+        let mut parser = parser::Parser::new(tokens);
         parser.parse();
         // println!("{:?}", tokens);
     }
