@@ -1,7 +1,10 @@
 #[derive(Debug)]
 pub enum Token {
     INTEGER(i32),
-    OPERATOR(char),
+    PLUS,
+    MINUS,
+    STAR,
+    SLASH,
     LPAREN,
     RPAREN,
     ERROR(String),
@@ -26,10 +29,10 @@ pub fn lex(line: &String) -> Vec<Token> {
             continue;
         }
         match c {
-            '+' => tokens.push(Token::OPERATOR(c)),
-            '-' => tokens.push(Token::OPERATOR(c)),
-            '*' => tokens.push(Token::OPERATOR(c)),
-            '/' => tokens.push(Token::OPERATOR(c)),
+            '+' => tokens.push(Token::PLUS),
+            '-' => tokens.push(Token::MINUS),
+            '*' => tokens.push(Token::STAR),
+            '/' => tokens.push(Token::SLASH),
             '(' => tokens.push(Token::LPAREN),
             ')' => tokens.push(Token::RPAREN),
             ' ' => continue,
