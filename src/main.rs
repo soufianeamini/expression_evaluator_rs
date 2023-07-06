@@ -18,6 +18,9 @@ fn main() {
             break;
         }
         let tokens = lexer::lex(&line);
+        if tokens.is_empty() {
+            continue;
+        }
         let mut parser = parser::Parser::new(tokens);
         let ast = parser.parse();
         if parser.was_successful() {
