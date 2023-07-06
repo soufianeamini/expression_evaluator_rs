@@ -10,18 +10,22 @@ enum Token {
 }
 
 fn main() {
-    let mut line = String::new();
-    match io::stdin()
-        .read_line(&mut line) {
-            Ok(len) => println!("Read {len} bytes."),
-            Err(_) => {
-                println!("Couldn't read line");
-                std::process::exit(5);
+    loop {
+        let mut line = String::new();
+        match io::stdin()
+            .read_line(&mut line) {
+                Ok(_) => (),
+                Err(_) => {
+                    println!("Couldn't read line");
+                    std::process::exit(5);
+                }
             }
+        if line.is_empty() {
+            break;
         }
-    println!("{line}");
-    let tokens = lexer(&line);
-    dbg!(tokens);
+        let tokens = lexer(&line);
+        println!("{:?}", tokens);
+    }
 }
 
 fn lexer(line: &String) -> Vec<Token> {
