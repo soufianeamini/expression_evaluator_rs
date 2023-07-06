@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 use crate::lexer::Token;
+use expression::Expression;
 
 mod expression;
 
@@ -132,8 +133,4 @@ impl Parser {
     pub fn was_successful(&self) -> bool {
         return !self.error;
     }
-}
-
-pub trait Expression {
-    fn evaluate(&self) -> f64;
 }

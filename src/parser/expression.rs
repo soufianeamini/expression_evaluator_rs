@@ -1,4 +1,6 @@
-use super::Expression;
+pub trait Expression {
+    fn evaluate(&self) -> f64;
+}
 
 pub struct Literal {
     pub value: f64,
