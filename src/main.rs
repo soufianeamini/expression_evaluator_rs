@@ -52,7 +52,15 @@ mod parser {
                     }
                 )
             }
-            unimplemented!()
+            if self.matchp(Token::LPAREN) {
+                let expr = self.expression();
+                self.consume(Token::RPAREN);
+                return expr;
+            } else {
+                self.error = true;
+                eprintln!("Error: Unexpected token: {:?}", self.tokens.front().unwrap());
+                return Box::new(expression::Literal {value: 0.});
+            }
         }
 
         fn factor(&mut self) -> Box<dyn Expression> {
@@ -78,7 +86,23 @@ mod parser {
         }
 
         fn term(&mut self) -> Box<dyn Expression> {
-            let expr = self.factor();
+            let mut expr = self.factor();
+
+            while self.matchp(Token::PLUS) || self.matchp(Token::MINUS) {
+                let right = self.primary();
+                let operator = self.previous.as_ref().unwrap();
+                expr = Box::new(
+                    expression::Binary {
+                        left: expr,
+                        operator: match operator {
+                            Token::PLUS => '+',
+                            Token::MINUS => '-',
+                            _ => unreachable!(),
+                        },
+                        right,
+                    }
+                );
+            }
 
             expr
         }
@@ -98,7 +122,6 @@ mod parser {
 
     mod expression {
         use super::Expression;
-        use crate::parser::Token;
 
         pub struct Literal {
             pub value: f64,
@@ -146,7 +169,6 @@ fn main() {
         }
         let tokens = lexer::lex(&line);
         let mut parser = parser::Parser::new(tokens);
-        parser.parse();
-        // println!("{:?}", tokens);
+        let ast = parser.parse();
     }
 }
