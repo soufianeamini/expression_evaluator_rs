@@ -39,6 +39,7 @@ mod parser {
                     self.error = true;
                     eprintln!("Error: expected token: {:?}, found: {:?}.", tok_type, token);
                 }
+                return;
             }
             eprintln!("Error: expected token: {:?}, found: nothing.", tok_type);
         }
@@ -67,16 +68,16 @@ mod parser {
             let mut expr = self.primary();
 
             while self.matchp(Token::STAR) || self.matchp(Token::SLASH) {
+                let operator = match self.previous.as_ref().unwrap() {
+                    Token::STAR => '*',
+                    Token::SLASH => '/',
+                    _ => unreachable!(),
+                };
                 let right = self.primary();
-                let operator = self.previous.as_ref().unwrap();
                 expr = Box::new(
                     expression::Binary {
                         left: expr,
-                        operator: match operator {
-                            Token::STAR => '*',
-                            Token::SLASH => '/',
-                            _ => unreachable!(),
-                        },
+                        operator,
                         right,
                     }
                 );
@@ -89,16 +90,16 @@ mod parser {
             let mut expr = self.factor();
 
             while self.matchp(Token::PLUS) || self.matchp(Token::MINUS) {
-                let right = self.primary();
-                let operator = self.previous.as_ref().unwrap();
+                let operator = match self.previous.as_ref().unwrap() {
+                    Token::PLUS => '+',
+                    Token::MINUS => '-',
+                    _ => unreachable!(),
+                };
+                let right = self.factor();
                 expr = Box::new(
                     expression::Binary {
                         left: expr,
-                        operator: match operator {
-                            Token::PLUS => '+',
-                            Token::MINUS => '-',
-                            _ => unreachable!(),
-                        },
+                        operator,
                         right,
                     }
                 );
@@ -112,7 +113,12 @@ mod parser {
         }
 
         pub fn parse(&mut self) -> Box<dyn Expression> {
+            self.error = false;
             self.expression()
+        }
+
+        pub fn was_successful(&self) -> bool {
+            return !self.error;
         }
     }
 
@@ -126,7 +132,7 @@ mod parser {
         pub struct Literal {
             pub value: f64,
         }
-        
+
         pub struct Binary {
             pub operator: char,
             pub left: Box<dyn Expression>,
@@ -170,5 +176,8 @@ fn main() {
         let tokens = lexer::lex(&line);
         let mut parser = parser::Parser::new(tokens);
         let ast = parser.parse();
+        if parser.was_successful() {
+            println!("Result: {}", ast.evaluate());
+        }
     }
 }
