@@ -120,7 +120,13 @@ impl Parser {
 
     pub fn parse(&mut self) -> Box<dyn Expression> {
         self.error = false;
-        self.expression()
+        let expr = self.expression();
+        if let Some(tok) = self.tokens.front() {
+            self.error = true;
+            eprintln!("Error: Unexpected token: {:?}", tok);
+        }
+
+        expr
     }
 
     pub fn was_successful(&self) -> bool {
