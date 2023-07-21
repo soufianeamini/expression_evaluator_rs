@@ -1,12 +1,10 @@
-use std::io;
-
 mod lexer;
 mod parser;
 
 fn main() {
     loop {
         let mut line = String::new();
-        match io::stdin()
+        match std::io::stdin()
             .read_line(&mut line) {
                 Ok(_) => (),
                 Err(_) => {
@@ -21,6 +19,7 @@ fn main() {
         if tokens.is_empty() {
             continue;
         }
+        let tokens = lexer::resolve(tokens);
         let mut parser = parser::Parser::new(tokens);
         let ast = parser.parse();
         if parser.was_successful() {
